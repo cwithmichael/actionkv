@@ -88,11 +88,11 @@ func (a *ActionKV) Load() error {
 
 func (a *ActionKV) GetAt(pos uint64) (*KeyValuePair, error) {
 	a.BackingFile.Seek(int64(pos), io.SeekStart)
-	v, err := processRecord(a.BackingFile)
+	kv, err := processRecord(a.BackingFile)
 	if err != nil {
 		return nil, err
 	}
-	return v, nil
+	return kv, nil
 }
 
 func (a *ActionKV) Get(key ByteString) (ByteString, error) {
