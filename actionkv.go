@@ -117,7 +117,7 @@ func (a *ActionKV) Insert(key ByteString, value ByteString) error {
 }
 
 func (a *ActionKV) Delete(key ByteString) error {
-	err := a.Insert(key, nil)
+	err := a.Insert(key, ByteString("value deleted"))
 	if err != nil {
 		return err
 	}

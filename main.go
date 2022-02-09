@@ -97,6 +97,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to delete %s\n", key)
 		}
+		storeIndexOnDisk(store, IndexKey)
 	case "insert":
 		if len(values) < 4 {
 			fmt.Println(Usage)
