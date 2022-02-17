@@ -6,7 +6,6 @@ import (
 	"errors"
 	"hash/crc32"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 )
@@ -63,11 +62,12 @@ func processRecord(f io.Reader) (*KeyValuePair, error) {
 }
 
 func (a *ActionKV) Load() error {
-	b, err := ioutil.ReadAll(a.BackingFile)
+	buf := bytes.Buffer{}
+	_, err := io.Copy(&buf, a.BackingFile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	f := bytes.NewReader(b)
+	f := bytes.NewReader(buf.Bytes())
 	for {
 		currentPosition, err := f.Seek(0, io.SeekCurrent)
 		if err != nil {
