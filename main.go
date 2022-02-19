@@ -32,17 +32,18 @@ func init() {
 
 func main() {
 	flag.Parse()
-	if flag.NArg() < 3 {
-		fmt.Println(Usage)
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, Usage)
 		os.Exit(1)
 	}
-	values := flag.Args()
-	fname := values[0]
-	action := values[1]
-	key := values[2]
+	if flag.NArg() < 3 {
+		flag.Usage()
+	}
+	argValues := flag.Args()
+	fname, action, key := argValues[0], argValues[1], argValues[2]
 	var maybeValue string
-	if len(values) == 4 {
-		maybeValue = values[3]
+	if len(argValues) == 4 {
+		maybeValue = argValues[3]
 	}
 
 	store, err := NewActionKV(fname)
@@ -58,14 +59,13 @@ func main() {
 	IndexKey := []byte("+index")
 	switch action {
 	case "get":
+		var index map[string]uint64
 		indexAsBytes, err := store.Get(IndexKey)
 		if err != nil {
 			log.Fatal(err)
 		}
 		b := bytes.NewBuffer(indexAsBytes)
-		d := gob.NewDecoder(b)
-		var index map[string]uint64
-		if err = d.Decode(&index); err != nil {
+		if err = gob.NewDecoder(b).Decode(&index); err != nil {
 			log.Fatal(err)
 		}
 		if pos, ok := index[key]; !ok {
@@ -83,18 +83,16 @@ func main() {
 		}
 		storeIndexOnDisk(store, IndexKey)
 	case "insert":
-		if len(values) < 4 {
-			fmt.Println(Usage)
-			os.Exit(1)
+		if len(argValues) < 4 {
+			flag.Usage()
 		}
 		if err := store.Insert(ByteString(key), ByteString(maybeValue)); err != nil {
 			log.Fatalf("Failed to insert %s, %s\n", key, maybeValue)
 		}
 		storeIndexOnDisk(store, IndexKey)
 	case "update":
-		if len(values) < 4 {
-			fmt.Println(Usage)
-			os.Exit(1)
+		if len(argValues) < 4 {
+			flag.Usage()
 		}
 		if err := store.Update(ByteString(key), ByteString(maybeValue)); err != nil {
 			log.Fatalf("Failed to update %s, %s\n", key, maybeValue)
