@@ -37,7 +37,6 @@ func processRecord(f io.Reader) (*KeyValuePair, error) {
 		keyLen        uint32
 		valLen        uint32
 	)
-
 	if err := binary.Read(f, binary.LittleEndian, &savedChecksum); err != nil {
 		return nil, err
 	}
@@ -52,6 +51,7 @@ func processRecord(f io.Reader) (*KeyValuePair, error) {
 	if _, err := io.ReadFull(f, data); err != nil {
 		return nil, err
 	}
+
 	checksum := crc32.ChecksumIEEE(data)
 	if checksum != savedChecksum {
 		log.Panicf("Invalid data: %x != %x", savedChecksum, checksum)
