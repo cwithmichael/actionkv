@@ -32,20 +32,23 @@ func NewActionKV(fname string) (*ActionKV, error) {
 }
 
 func processRecord(f io.Reader) (*KeyValuePair, error) {
-	var savedChecksum uint32
+	var (
+		savedChecksum uint32
+		keyLen        uint32
+		valLen        uint32
+	)
+
 	if err := binary.Read(f, binary.LittleEndian, &savedChecksum); err != nil {
 		return nil, err
 	}
-	var keyLen uint32
 	if err := binary.Read(f, binary.LittleEndian, &keyLen); err != nil {
 		return nil, err
 	}
-	var valLen uint32
 	if err := binary.Read(f, binary.LittleEndian, &valLen); err != nil {
 		return nil, err
 	}
-	data := make([]byte, keyLen+valLen)
 
+	data := make([]byte, keyLen+valLen)
 	if _, err := io.ReadFull(f, data); err != nil {
 		return nil, err
 	}

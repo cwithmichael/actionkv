@@ -30,18 +30,6 @@ func init() {
 	}
 }
 
-func storeIndexOnDisk(akv *ActionKV, indexKey ByteString) error {
-	delete(akv.Index, string(indexKey))
-	b := new(bytes.Buffer)
-	e := gob.NewEncoder(b)
-	if err := e.Encode(akv.Index); err != nil {
-		return err
-	}
-	akv.Index = make(map[string]uint64)
-	akv.Insert(indexKey, b.Bytes())
-	return nil
-}
-
 func main() {
 	flag.Parse()
 	if flag.NArg() < 3 {
@@ -115,4 +103,16 @@ func main() {
 	default:
 		fmt.Println(Usage)
 	}
+}
+
+func storeIndexOnDisk(akv *ActionKV, indexKey ByteString) error {
+	delete(akv.Index, string(indexKey))
+	b := new(bytes.Buffer)
+	e := gob.NewEncoder(b)
+	if err := e.Encode(akv.Index); err != nil {
+		return err
+	}
+	akv.Index = make(map[string]uint64)
+	akv.Insert(indexKey, b.Bytes())
+	return nil
 }
