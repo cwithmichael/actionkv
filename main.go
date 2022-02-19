@@ -34,8 +34,7 @@ func storeIndexOnDisk(akv *ActionKV, indexKey ByteString) error {
 	delete(akv.Index, string(indexKey))
 	b := new(bytes.Buffer)
 	e := gob.NewEncoder(b)
-	err := e.Encode(akv.Index)
-	if err != nil {
+	if err := e.Encode(akv.Index); err != nil {
 		return err
 	}
 	akv.Index = make(map[string]uint64)
@@ -64,8 +63,7 @@ func main() {
 	}
 	defer store.BackingFile.Close()
 
-	err = store.Load()
-	if err != nil {
+	if err = store.Load(); err != nil {
 		log.Fatalf("Unable to load data: %s\n", err.Error())
 	}
 
@@ -79,8 +77,7 @@ func main() {
 		b := bytes.NewBuffer(indexAsBytes)
 		d := gob.NewDecoder(b)
 		var index map[string]uint64
-		err = d.Decode(&index)
-		if err != nil {
+		if err = d.Decode(&index); err != nil {
 			log.Fatal(err)
 		}
 		if pos, ok := index[key]; !ok {
@@ -93,8 +90,7 @@ func main() {
 			fmt.Printf("Value: %s\n", kv.Value)
 		}
 	case "delete":
-		err := store.Delete(ByteString(key))
-		if err != nil {
+		if err := store.Delete(ByteString(key)); err != nil {
 			log.Fatalf("Failed to delete %s\n", key)
 		}
 		storeIndexOnDisk(store, IndexKey)
@@ -103,8 +99,7 @@ func main() {
 			fmt.Println(Usage)
 			os.Exit(1)
 		}
-		err := store.Insert(ByteString(key), ByteString(maybeValue))
-		if err != nil {
+		if err := store.Insert(ByteString(key), ByteString(maybeValue)); err != nil {
 			log.Fatalf("Failed to insert %s, %s\n", key, maybeValue)
 		}
 		storeIndexOnDisk(store, IndexKey)
@@ -113,8 +108,7 @@ func main() {
 			fmt.Println(Usage)
 			os.Exit(1)
 		}
-		err := store.Update(ByteString(key), ByteString(maybeValue))
-		if err != nil {
+		if err := store.Update(ByteString(key), ByteString(maybeValue)); err != nil {
 			log.Fatalf("Failed to update %s, %s\n", key, maybeValue)
 		}
 		storeIndexOnDisk(store, IndexKey)
