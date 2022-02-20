@@ -38,16 +38,9 @@ func main() {
 		maybeValue = argValues[3]
 	}
 
-	store, err := NewActionKV(fname)
-	if err != nil {
-		log.Fatalf("Unable to open file: %s", fname)
-	}
-	defer store.BackingFile.Close()
-	if err = store.Load(); err != nil {
-		log.Fatalf("Unable to load data: %s\n", err.Error())
-	}
-
 	IndexKey := []byte("+index")
+	store := loadStore(fname)
+	defer store.BackingFile.Close()
 	switch action {
 	case "get":
 		var index map[string]uint64
@@ -104,6 +97,17 @@ func getArgs() []string {
 		flag.Usage()
 	}
 	return flag.Args()
+}
+
+func loadStore(fname string) *ActionKV {
+	store, err := NewActionKV(fname)
+	if err != nil {
+		log.Fatalf("Unable to open file: %s", fname)
+	}
+	if err = store.Load(); err != nil {
+		log.Fatalf("Unable to load data: %s\n", err.Error())
+	}
+	return store
 }
 
 func storeIndexOnDisk(akv *ActionKV, indexKey ByteString) error {
