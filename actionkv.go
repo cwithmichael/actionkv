@@ -10,18 +10,22 @@ import (
 	"os"
 )
 
+// KeyValuePair represents a key-value pair
 type KeyValuePair struct {
 	Key   ByteString
 	Value ByteString
 }
 
+// ActionKV represents the data store with a BackingFile and an Index
 type ActionKV struct {
 	BackingFile *os.File
 	Index       map[string]uint64
 }
 
+// ByteString is just a slice of bytes
 type ByteString []byte
 
+// NewActionKV creates a new instance of ActionKV
 func NewActionKV(fname string) (*ActionKV, error) {
 	// can't defer file close here
 	f, err := os.OpenFile(fname, os.O_CREATE|os.O_RDWR, 6644)
@@ -60,6 +64,8 @@ func processRecord(f io.Reader) (*KeyValuePair, error) {
 	return &KeyValuePair{Key: data[0:keyLen], Value: data[keyLen:]}, nil
 }
 
+// Load loads the backing file and gets the currentPosition in the file
+// to start adding data
 func (a *ActionKV) Load() error {
 	buf := bytes.Buffer{}
 	if _, err := io.Copy(&buf, a.BackingFile); err != nil {
@@ -84,6 +90,7 @@ func (a *ActionKV) Load() error {
 	return nil
 }
 
+// GetAt gets a key-value pair at a certain position in the backing file
 func (a *ActionKV) GetAt(pos uint64) (*KeyValuePair, error) {
 	a.BackingFile.Seek(int64(pos), io.SeekStart)
 	kv, err := processRecord(a.BackingFile)
@@ -93,6 +100,7 @@ func (a *ActionKV) GetAt(pos uint64) (*KeyValuePair, error) {
 	return kv, nil
 }
 
+// Get returns a value from the data store for a given key
 func (a *ActionKV) Get(key ByteString) (ByteString, error) {
 	pos, ok := a.Index[string(key)]
 	if !ok {
@@ -105,6 +113,7 @@ func (a *ActionKV) Get(key ByteString) (ByteString, error) {
 	return kv.Value, nil
 }
 
+// Insert adds a new key-value pair to the data store
 func (a *ActionKV) Insert(key ByteString, value ByteString) error {
 	pos, err := a.InsertButIgnoreIndex(key, value)
 	if err != nil {
@@ -114,6 +123,7 @@ func (a *ActionKV) Insert(key ByteString, value ByteString) error {
 	return nil
 }
 
+// Delete removes a key-value pair
 func (a *ActionKV) Delete(key ByteString) error {
 	if err := a.Insert(key, ByteString("value deleted")); err != nil {
 		return err
@@ -121,6 +131,7 @@ func (a *ActionKV) Delete(key ByteString) error {
 	return nil
 }
 
+// Update updates a key-value pair
 func (a *ActionKV) Update(key ByteString, value ByteString) error {
 	if err := a.Insert(key, value); err != nil {
 		return err
@@ -128,6 +139,7 @@ func (a *ActionKV) Update(key ByteString, value ByteString) error {
 	return nil
 }
 
+// InsertButIgnoreIndex inserts a new key-value pair without using the index
 func (a *ActionKV) InsertButIgnoreIndex(key ByteString, value ByteString) (uint64, error) {
 	keyLen := len(key)
 	valLen := len(value)

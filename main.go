@@ -10,18 +10,18 @@ import (
 	"runtime"
 )
 
-var Usage string
+var usage string
 
 func init() {
 	if runtime.GOOS == "windows" {
-		Usage = `Usage:
+		usage = `Usage:
 		actionkv.exe FILE get KEY
 		actionkv.exe FILE delete KEY
 		actionkv.exe FILE insert KEY VALUE
 		actionkv.exe FILE update KEY VALUE
 		`
 	} else {
-		Usage = `Usage:
+		usage = `Usage:
 		actionkv FILE get KEY
 		actionkv FILE delete KEY
 		actionkv FILE insert KEY VALUE
@@ -90,7 +90,7 @@ func main() {
 func getArgs() []string {
 	flag.Parse()
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, Usage)
+		fmt.Fprintln(os.Stderr, usage)
 		os.Exit(1)
 	}
 	if flag.NArg() < 3 {
