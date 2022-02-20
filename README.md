@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/cwithmichael/actionkv)](https://goreportcard.com/report/github.com/cwithmichael/actionkv)
+
 # actionkv
 Port of the Rust in Action ActionKV db from Rust to Go.
 
