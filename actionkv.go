@@ -24,11 +24,11 @@ type ByteString []byte
 
 func NewActionKV(fname string) (*ActionKV, error) {
 	// can't defer file close here
-	if f, err := os.OpenFile(fname, os.O_CREATE|os.O_RDWR, 6644); err != nil {
+	f, err := os.OpenFile(fname, os.O_CREATE|os.O_RDWR, 6644)
+	if err != nil {
 		return nil, err
-	} else {
-		return &ActionKV{BackingFile: f, Index: make(map[string]uint64)}, nil
 	}
+	return &ActionKV{BackingFile: f, Index: make(map[string]uint64)}, nil
 }
 
 func processRecord(f io.Reader) (*KeyValuePair, error) {
@@ -86,11 +86,11 @@ func (a *ActionKV) Load() error {
 
 func (a *ActionKV) GetAt(pos uint64) (*KeyValuePair, error) {
 	a.BackingFile.Seek(int64(pos), io.SeekStart)
-	if kv, err := processRecord(a.BackingFile); err != nil {
+	kv, err := processRecord(a.BackingFile)
+	if err != nil {
 		return nil, err
-	} else {
-		return kv, nil
 	}
+	return kv, nil
 }
 
 func (a *ActionKV) Get(key ByteString) (ByteString, error) {
@@ -98,20 +98,20 @@ func (a *ActionKV) Get(key ByteString) (ByteString, error) {
 	if !ok {
 		return nil, errors.New("couldn't find key")
 	}
-	if kv, err := a.GetAt(pos); err != nil {
+	kv, err := a.GetAt(pos)
+	if err != nil {
 		return nil, err
-	} else {
-		return kv.Value, nil
 	}
+	return kv.Value, nil
 }
 
 func (a *ActionKV) Insert(key ByteString, value ByteString) error {
-	if pos, err := a.InsertButIgnoreIndex(key, value); err != nil {
+	pos, err := a.InsertButIgnoreIndex(key, value)
+	if err != nil {
 		return err
-	} else {
-		a.Index[string(key)] = pos
-		return nil
 	}
+	a.Index[string(key)] = pos
+	return nil
 }
 
 func (a *ActionKV) Delete(key ByteString) error {
