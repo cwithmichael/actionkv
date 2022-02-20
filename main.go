@@ -109,8 +109,7 @@ func getArgs() []string {
 func storeIndexOnDisk(akv *ActionKV, indexKey ByteString) error {
 	delete(akv.Index, string(indexKey))
 	b := new(bytes.Buffer)
-	e := gob.NewEncoder(b)
-	if err := e.Encode(akv.Index); err != nil {
+	if err := gob.NewEncoder(b).Encode(akv.Index); err != nil {
 		return err
 	}
 	akv.Index = make(map[string]uint64)
