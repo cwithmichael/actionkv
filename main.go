@@ -31,15 +31,7 @@ func init() {
 }
 
 func main() {
-	flag.Parse()
-	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, Usage)
-		os.Exit(1)
-	}
-	if flag.NArg() < 3 {
-		flag.Usage()
-	}
-	argValues := flag.Args()
+	argValues := getArgs()
 	fname, action, key := argValues[0], argValues[1], argValues[2]
 	var maybeValue string
 	if len(argValues) == 4 {
@@ -51,7 +43,6 @@ func main() {
 		log.Fatalf("Unable to open file: %s", fname)
 	}
 	defer store.BackingFile.Close()
-
 	if err = store.Load(); err != nil {
 		log.Fatalf("Unable to load data: %s\n", err.Error())
 	}
@@ -101,6 +92,18 @@ func main() {
 	default:
 		fmt.Println(Usage)
 	}
+}
+
+func getArgs() []string {
+	flag.Parse()
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, Usage)
+		os.Exit(1)
+	}
+	if flag.NArg() < 3 {
+		flag.Usage()
+	}
+	return flag.Args()
 }
 
 func storeIndexOnDisk(akv *ActionKV, indexKey ByteString) error {
