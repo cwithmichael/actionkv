@@ -34,10 +34,16 @@ func init() {
 
 func main() {
 	argValues := getArgs()
-	fname, action, key := argValues[0], argValues[1], argValues[2]
-	var maybeValue string
-	if len(argValues) == 4 {
-		maybeValue = argValues[3]
+	var (
+		fname  string
+		action string
+		key    string
+		value  string
+	)
+	if len(argValues) == 3 {
+		fname, action, key = argValues[0], argValues[1], argValues[2]
+	} else if len(argValues) == 4 {
+		fname, action, key, value = argValues[0], argValues[1], argValues[2], argValues[3]
 	}
 
 	IndexKey := []byte("+index")
@@ -67,22 +73,25 @@ func main() {
 		if err := store.Delete(actionkv.ByteString(key)); err != nil {
 			log.Fatalf("Failed to delete %s\n", key)
 		}
+		fmt.Printf("Deleted: %s\n", key)
 		storeIndexOnDisk(store, IndexKey)
 	case "insert":
 		if len(argValues) < 4 {
 			flag.Usage()
 		}
-		if err := store.Insert(actionkv.ByteString(key), actionkv.ByteString(maybeValue)); err != nil {
-			log.Fatalf("Failed to insert %s, %s\n", key, maybeValue)
+		if err := store.Insert(actionkv.ByteString(key), actionkv.ByteString(value)); err != nil {
+			log.Fatalf("Failed to insert %s, %s\n", key, value)
 		}
+		fmt.Printf("Inserted Key: %s Value: %s\n", key, value)
 		storeIndexOnDisk(store, IndexKey)
 	case "update":
 		if len(argValues) < 4 {
 			flag.Usage()
 		}
-		if err := store.Update(actionkv.ByteString(key), actionkv.ByteString(maybeValue)); err != nil {
-			log.Fatalf("Failed to update %s, %s\n", key, maybeValue)
+		if err := store.Update(actionkv.ByteString(key), actionkv.ByteString(value)); err != nil {
+			log.Fatalf("Failed to update %s, %s\n", key, value)
 		}
+		fmt.Printf("Updated Key: %s with Value: %s\n", key, value)
 		storeIndexOnDisk(store, IndexKey)
 	default:
 		fmt.Println(usage)
