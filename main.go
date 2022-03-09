@@ -83,7 +83,7 @@ func main() {
 		}
 		storeIndexOnDisk(store, IndexKey)
 	default:
-		fmt.Println(Usage)
+		fmt.Println(usage)
 	}
 }
 
