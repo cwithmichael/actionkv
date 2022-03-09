@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"runtime"
+
+	"github.com/cwithmichael/actionkv/pkg/actionkv"
 )
 
 var usage string
@@ -62,7 +64,7 @@ func main() {
 			fmt.Printf("Value: %s\n", kv.Value)
 		}
 	case "delete":
-		if err := store.Delete(ByteString(key)); err != nil {
+		if err := store.Delete(actionkv.ByteString(key)); err != nil {
 			log.Fatalf("Failed to delete %s\n", key)
 		}
 		storeIndexOnDisk(store, IndexKey)
@@ -70,7 +72,7 @@ func main() {
 		if len(argValues) < 4 {
 			flag.Usage()
 		}
-		if err := store.Insert(ByteString(key), ByteString(maybeValue)); err != nil {
+		if err := store.Insert(actionkv.ByteString(key), actionkv.ByteString(maybeValue)); err != nil {
 			log.Fatalf("Failed to insert %s, %s\n", key, maybeValue)
 		}
 		storeIndexOnDisk(store, IndexKey)
@@ -78,7 +80,7 @@ func main() {
 		if len(argValues) < 4 {
 			flag.Usage()
 		}
-		if err := store.Update(ByteString(key), ByteString(maybeValue)); err != nil {
+		if err := store.Update(actionkv.ByteString(key), actionkv.ByteString(maybeValue)); err != nil {
 			log.Fatalf("Failed to update %s, %s\n", key, maybeValue)
 		}
 		storeIndexOnDisk(store, IndexKey)
@@ -99,8 +101,8 @@ func getArgs() []string {
 	return flag.Args()
 }
 
-func loadStore(fname string) *ActionKV {
-	store, err := NewActionKV(fname)
+func loadStore(fname string) *actionkv.ActionKV {
+	store, err := actionkv.NewActionKV(fname)
 	if err != nil {
 		log.Fatalf("Unable to open file: %s", fname)
 	}
@@ -110,7 +112,7 @@ func loadStore(fname string) *ActionKV {
 	return store
 }
 
-func storeIndexOnDisk(akv *ActionKV, indexKey ByteString) error {
+func storeIndexOnDisk(akv *actionkv.ActionKV, indexKey actionkv.ByteString) error {
 	delete(akv.Index, string(indexKey))
 	b := new(bytes.Buffer)
 	if err := gob.NewEncoder(b).Encode(akv.Index); err != nil {

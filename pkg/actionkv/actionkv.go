@@ -1,4 +1,4 @@
-package main
+package actionkv
 
 import (
 	"bytes"
@@ -115,7 +115,7 @@ func (a *ActionKV) Get(key ByteString) (ByteString, error) {
 
 // Insert adds a new key-value pair to the data store
 func (a *ActionKV) Insert(key ByteString, value ByteString) error {
-	pos, err := a.InsertButIgnoreIndex(key, value)
+	pos, err := a.insertButIgnoreIndex(key, value)
 	if err != nil {
 		return err
 	}
@@ -139,8 +139,8 @@ func (a *ActionKV) Update(key ByteString, value ByteString) error {
 	return nil
 }
 
-// InsertButIgnoreIndex inserts a new key-value pair without using the index
-func (a *ActionKV) InsertButIgnoreIndex(key ByteString, value ByteString) (uint64, error) {
+// insertButIgnoreIndex inserts a new key-value pair without using the index
+func (a *ActionKV) insertButIgnoreIndex(key ByteString, value ByteString) (uint64, error) {
 	keyLen := len(key)
 	valLen := len(value)
 	tmp := make(ByteString, 0, keyLen+valLen)
