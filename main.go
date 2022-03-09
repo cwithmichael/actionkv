@@ -33,13 +33,14 @@ func init() {
 }
 
 func main() {
-	argValues := getArgs()
 	var (
 		fname  string
 		action string
 		key    string
 		value  string
 	)
+	argValues := getArgs()
+
 	if len(argValues) == 3 {
 		fname, action, key = argValues[0], argValues[1], argValues[2]
 	} else if len(argValues) == 4 {
