@@ -123,7 +123,7 @@ func (a *ActionKV) Insert(key ByteString, value ByteString) error {
 	return nil
 }
 
-// Delete removes a key-value pair
+// Delete marks a key-value pair as deleted
 func (a *ActionKV) Delete(key ByteString) error {
 	if err := a.Insert(key, ByteString("value deleted")); err != nil {
 		return err
