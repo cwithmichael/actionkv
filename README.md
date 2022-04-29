@@ -10,10 +10,10 @@ You can find the original Rust code [here](https://github.com/rust-in-action/cod
 Run `go build`. This should produce an executable named `actionkv`.
 ```
 Usage:
-		actionkv FILE get KEY
-		actionkv FILE delete KEY
-		actionkv FILE insert KEY VALUE
-		actionkv FILE update KEY VALUE
+        actionkv <file> get <key>
+        actionkv <file> delete <key>
+        actionkv <file> insert <key> <value>
+        actionkv <file> update <key> <value>
 ```
 
 Example:

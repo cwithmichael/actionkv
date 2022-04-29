@@ -1,4 +1,4 @@
-package actionkv
+package main
 
 import (
 	"bytes"
@@ -159,6 +159,7 @@ func (a *ActionKV) insertButIgnoreIndex(key ByteString, value ByteString) (uint6
 	if _, err = a.BackingFile.Seek(0, io.SeekEnd); err != nil {
 		return 0, err
 	}
+
 	if err = binary.Write(a.BackingFile, binary.LittleEndian, checksum); err != nil {
 		return 0, err
 	}

@@ -1,4 +1,4 @@
-package actionkv
+package main
 
 import (
 	"os"

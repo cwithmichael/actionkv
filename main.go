@@ -7,30 +7,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime"
-
-	"github.com/cwithmichael/actionkv/pkg/actionkv"
+	"strings"
 )
-
-var usage string
-
-func init() {
-	if runtime.GOOS == "windows" {
-		usage = `Usage:
-		actionkv.exe FILE get KEY
-		actionkv.exe FILE delete KEY
-		actionkv.exe FILE insert KEY VALUE
-		actionkv.exe FILE update KEY VALUE
-		`
-	} else {
-		usage = `Usage:
-		actionkv FILE get KEY
-		actionkv FILE delete KEY
-		actionkv FILE insert KEY VALUE
-		actionkv FILE update KEY VALUE
-		`
-	}
-}
 
 func main() {
 	var (
@@ -39,7 +17,15 @@ func main() {
 		key    string
 		value  string
 	)
-	argValues := getArgs()
+
+	usage := fmt.Sprintf(`Usage:
+	%[1]s <file> get <key>
+	%[1]s <file> delete <key>
+	%[1]s <file> insert <key> <value>
+	%[1]s <file> update <key> <value>
+	`, os.Args[0])
+
+	argValues := getArgs(usage)
 
 	if len(argValues) == 3 {
 		fname, action, key = argValues[0], argValues[1], argValues[2]
@@ -50,7 +36,8 @@ func main() {
 	IndexKey := []byte("+index")
 	store := loadStore(fname)
 	defer store.BackingFile.Close()
-	switch action {
+
+	switch strings.ToLower(action) {
 	case "get":
 		var index map[string]uint64
 		indexAsBytes, err := store.Get(IndexKey)
@@ -71,7 +58,7 @@ func main() {
 			fmt.Printf("Value: %s\n", kv.Value)
 		}
 	case "delete":
-		if err := store.Delete(actionkv.ByteString(key)); err != nil {
+		if err := store.Delete(ByteString(key)); err != nil {
 			log.Fatalf("Failed to delete %s\n", key)
 		}
 		fmt.Printf("Deleted: %s\n", key)
@@ -80,7 +67,7 @@ func main() {
 		if len(argValues) < 4 {
 			flag.Usage()
 		}
-		if err := store.Insert(actionkv.ByteString(key), actionkv.ByteString(value)); err != nil {
+		if err := store.Insert(ByteString(key), ByteString(value)); err != nil {
 			log.Fatalf("Failed to insert %s, %s\n", key, value)
 		}
 		fmt.Printf("Inserted Key: %s Value: %s\n", key, value)
@@ -89,7 +76,7 @@ func main() {
 		if len(argValues) < 4 {
 			flag.Usage()
 		}
-		if err := store.Update(actionkv.ByteString(key), actionkv.ByteString(value)); err != nil {
+		if err := store.Update(ByteString(key), ByteString(value)); err != nil {
 			log.Fatalf("Failed to update %s, %s\n", key, value)
 		}
 		fmt.Printf("Updated Key: %s with Value: %s\n", key, value)
@@ -99,7 +86,7 @@ func main() {
 	}
 }
 
-func getArgs() []string {
+func getArgs(usage string) []string {
 	flag.Parse()
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stderr, usage)
@@ -111,8 +98,8 @@ func getArgs() []string {
 	return flag.Args()
 }
 
-func loadStore(fname string) *actionkv.ActionKV {
-	store, err := actionkv.NewActionKV(fname)
+func loadStore(fname string) *ActionKV {
+	store, err := NewActionKV(fname)
 	if err != nil {
 		log.Fatalf("Unable to open file: %s", fname)
 	}
@@ -122,7 +109,7 @@ func loadStore(fname string) *actionkv.ActionKV {
 	return store
 }
 
-func storeIndexOnDisk(akv *actionkv.ActionKV, indexKey actionkv.ByteString) error {
+func storeIndexOnDisk(akv *ActionKV, indexKey ByteString) error {
 	delete(akv.Index, string(indexKey))
 	b := new(bytes.Buffer)
 	if err := gob.NewEncoder(b).Encode(akv.Index); err != nil {
